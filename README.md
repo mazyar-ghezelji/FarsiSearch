@@ -1,4 +1,4 @@
-# FarsiSearch 🔍
+# FarsiSearch 
 
 > A Persian-language information retrieval system built on the Hamshahri corpus
 
