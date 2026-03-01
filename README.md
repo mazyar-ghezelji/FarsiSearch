@@ -34,13 +34,8 @@ This information retrieval system likely includes:
 
 ## Requirements
 
-```
-Python 3.x
-jupyter
-numpy
-pandas
-hazm (Persian text processing library)
-```
+- Python 3.8+
+- Dependencies: `jupyter`, `numpy`, `pandas`, `hazm` (see `requirements.txt`).
 
 ## Installation
 
@@ -57,7 +52,7 @@ cd information-retrieval-system
 
 3. Install required dependencies:
 ```bash
-pip install jupyter numpy pandas hazm
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -103,6 +98,19 @@ For more information about the Hamshahri corpus and Persian information retrieva
 - [Hamshahri Collection Official Site](http://dbrg.ut.ac.ir/Hamshahri/)
 - Persian@CLEF 2008 and 2009 evaluation campaigns
 - Research papers on Persian text processing and IR
+
+## Making this repo better
+
+Ideas for future improvements:
+
+- **Refactor into a Python package**: Move indexing, query processing, and evaluation into modules (e.g. `preprocess.py`, `index.py`, `query.py`, `evaluation.py`) and keep the notebook as a thin runner. This improves testability and reuse.
+- **Configurable paths**: Use a config file (YAML/JSON) or environment variables for corpus path, corpus years (e.g. `2003`–`2007`), and query/judgement paths so others can run without editing the notebook.
+- **Safe file I/O**: Use `with open(...) as f:` for all file and pickle operations to avoid resource leaks.
+- **Fix list mutation during iteration**: Replace `for a in modified_tokens: ... modified_tokens.remove(a)` with a list comprehension so you don’t modify a list while iterating (e.g. `modified_tokens = [a for a in modified_tokens if a in dictionary]`).
+- **Add tests**: Unit tests for preprocessing (tokenization, stemming), scoring (TF-IDF, cosine), and evaluation (precision, recall, F1, MAP) to guard against regressions.
+- **Add BM25**: Implement BM25 ranking as an alternative to TF-IDF for better robustness.
+- **CLI**: Optional `python -m ir index` and `python -m ir search --query "..."` for indexing and search without opening the notebook.
+- **Index persistence**: Document the pickle format and optionally add version/checks when saving/loading the index.
 
 ## Contributing
 

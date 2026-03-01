@@ -1,0 +1,32 @@
+# Data and generated artifacts
+Documents/
+HamshahriData/
+*.pickle
+dict.pickle
+*.7z
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE / OS
+.DS_Store
+.idea/
+*.swp
+*.swo
+*~
+
+# Local / temp (add specific files as needed, e.g. mazyar.txt)
