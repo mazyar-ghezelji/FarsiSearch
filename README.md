@@ -1,144 +1,120 @@
-# Information Retrieval System
+# FarsiSearch
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+> A Persian-language information retrieval system built on the Hamshahri corpus
 
-A full information retrieval pipeline for the **Hamshahri corpus** (Persian): indexing, TF-IDF ranking, and evaluation (Precision, Recall, F1, MAP).
+---
+
+## Overview
+
+FarsiSearch is a full information retrieval (IR) pipeline implemented in Python, designed specifically for Persian (Farsi) text. It processes the [Hamshahri corpus](http://dbrg.ut.ac.ir/Hamshahri/) — a large collection of real-world Persian newspaper articles — and supports end-to-end document indexing, query processing, and relevance ranking.
+
+The project addresses the unique challenges of Persian NLP: right-to-left script, rich morphology, character encoding variations, and the lack of whitespace-based word boundaries in some contexts.
+
+---
 
 ## Features
 
-- **Persian NLP**: Tokenization, normalization, stemming, and lemmatization via [Hazm](https://github.com/roshan-research/hazm)
-- **Inverted index**: Positional postings, configurable stop-word removal
-- **Query processing**: Wildcard expansion (`سال*`), vocabulary filtering
-- **Scoring**: TF-IDF with lnn.ltn or lnc.ltc (cosine) modes
-- **Evaluation**: Judgements-based Precision, Recall, F1, MAP
-- **CLI & API**: Command-line tools and importable Python package
+- **Persian text preprocessing** — normalization, tokenization, and stemming using [`hazm`](https://github.com/sobhe/hazm)
+- **Stop word filtering** — removes high-frequency Persian words that don't contribute to relevance
+- **Inverted index construction** — efficient term-to-document mapping for fast retrieval
+- **TF-IDF / BM25 ranking** — scores documents by relevance to a given query
+- **Query execution** — accepts Persian queries and returns ranked results
 
-## Project structure
+---
+
+## Dataset: Hamshahri Corpus
+
+| Property    | Details                                          |
+| ----------- | ------------------------------------------------ |
+| Source      | Hamshahri newspaper (Iran)                       |
+| Language    | Persian (Farsi)                                  |
+| Size        | 160,000+ articles                                |
+| Topics      | Politics, economics, sports, culture, and more   |
+| Notable use | CLEF 2008 & 2009 Persian IR evaluation campaigns |
+
+---
+
+## Project Structure
 
 ```
-.
-├── ir/                    # Main package
-│   ├── __init__.py
-│   ├── config.py          # Paths and constants
-│   ├── preprocess.py      # Persian preprocessing (Hazm)
-│   ├── index.py           # Inverted index build/save/load
-│   ├── query.py           # Query tokenization and wildcards
-│   ├── scoring.py         # TF-IDF and cosine scoring
-│   ├── evaluation.py      # Load judgements, P/R, F1, MAP
-│   └── cli.py             # Command-line interface
-├── tests/
-├── ir.ipynb               # Original notebook (exploratory)
-├── config.yaml            # Optional path overrides
-├── pyproject.toml
-├── README.md
-├── LICENSE
-└── CONTRIBUTING.md
+FarsiSearch/
+├── ir.ipynb               # Main notebook — full IR pipeline
+├── HamshahriData.7z       # Compressed corpus data
+├── Project Description.pdf  # Project spec and requirements
+└── README.md
 ```
 
-## Requirements
+---
 
-- **Python 3.8+**
-- Hazm, NumPy, Pandas (see `pyproject.toml`)
+## Getting Started
 
-## Installation
+### Prerequisites
+
+- Python 3.7+
+- 7-Zip (to extract corpus data)
+
+### Installation
 
 ```bash
-git clone https://github.com/mazyar-ghezelji/information-retrieval-system.git
-cd information-retrieval-system
-pip install -e .
+# Clone the repository
+git clone https://github.com/mazyar-ghezelji/FarsiSearch.git
+cd FarsiSearch
+
+# Install dependencies
+pip install jupyter numpy pandas hazm
+
+# Extract the corpus
+7z x HamshahriData.7z
 ```
 
-For development and the notebook:
-
-```bash
-pip install -e ".[dev,notebook]"
-```
-
-## Data
-
-1. Extract the Hamshahri corpus (e.g. `7z x HamshahriData.7z`).
-2. Expected layout:
-   - `Documents/HamshahriData/HamshahriCorpus/2003/` … `2007/` (documents)
-   - `Documents/HamshahriData/Queris/1.q` … `50.q` (queries)
-   - `Documents/HamshahriData/RelativeAssesemnt/judgements.txt` (relevance judgements)
-
-Paths can be overridden in `config.yaml` or via CLI flags.
-
-## Usage
-
-### Command line
-
-**Build index:**
+### Running
 
 ```bash
 ir index --corpus Documents/HamshahriData/HamshahriCorpus --output dict.pickle
 ```
 
-**Search:**
+Run the notebook cells in order to:
 
-```bash
-ir search "مازیار" --index dict.pickle --top-k 20
-ir search "سال*" --cosine
-```
+1. Load and preprocess the Hamshahri corpus
+2. Build the inverted index
+3. Execute Persian search queries
+4. View ranked retrieval results
 
-**Evaluate on all 50 queries:**
+---
 
-```bash
-ir evaluate --index dict.pickle --queries Documents/HamshahriData/Queris --judgements Documents/HamshahriData/RelativeAssesemnt/judgements.txt
-```
+## Persian NLP Challenges
 
-### Python API
+Working with Persian text requires special handling that differs significantly from English IR:
 
-```python
-from pathlib import Path
-from ir import InvertedIndex, PersianPreprocessor, process_query_tokens, score_documents
+- **Right-to-left script** — text direction must be accounted for in processing pipelines
+- **Morphological complexity** — words inflect heavily; stemming is essential for recall
+- **Character variants** — Arabic and Persian share Unicode ranges but differ in some characters (e.g., ک vs ك, ی vs ي)
+- **Compound words** — Persian frequently joins words that would be separate in English
 
-# Build or load index
-index = InvertedIndex()
-index.build_from_corpus(Path("Documents/HamshahriData/HamshahriCorpus"))
-# index.load("dict.pickle")
+This project uses `hazm` to handle these issues robustly.
 
-# Run a query
-preprocessor = PersianPreprocessor()
-terms, full = process_query_tokens("مازیار", preprocessor, index.dictionary)
-scores = score_documents(
-    index.dictionary, index.docs_size, index.docs_count,
-    terms, full, mode="1"
-)
-for doc_id, score in scores[:10]:
-    print(doc_id, score)
-```
+---
 
-### Notebook
+## Dependencies
 
-The original workflow is preserved in `ir.ipynb`. You can also use the package from the notebook:
+| Package   | Purpose                                            |
+| --------- | -------------------------------------------------- |
+| `hazm`    | Persian text normalization, tokenization, stemming |
+| `numpy`   | Numerical operations for TF-IDF vectors            |
+| `pandas`  | Data handling for corpus documents                 |
+| `jupyter` | Interactive notebook environment                   |
 
-```python
-from ir import InvertedIndex, process_query_tokens, score_documents
-# ... use as above
-```
+---
 
-## Testing
+## References
 
-```bash
-pytest
-pytest -v --cov=ir
-```
+- [Hamshahri Corpus — University of Tehran DBRG](http://dbrg.ut.ac.ir/Hamshahri/)
+- [hazm — Persian NLP Library](https://github.com/sobhe/hazm)
+- CLEF 2008 & 2009 — Persian track evaluation campaigns
 
-## About the Hamshahri corpus
-
-The [Hamshahri](http://dbrg.ut.ac.ir/Hamshahri/) corpus is a Persian text collection from the Hamshahri newspaper, used in CLEF 2008–2009 for evaluating Persian IR systems.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+---
 
 ## Author
 
-**Mazyar Ghezelji**
-
-## Acknowledgments
-
-- University of Tehran DBRG for the Hamshahri corpus
-- CLEF and the Persian NLP community
+**Mazyar Ghezelji**  
+[github.com/mazyar-ghezelji](https://github.com/mazyar-ghezelji)
