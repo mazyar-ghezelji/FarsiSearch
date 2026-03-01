@@ -1,0 +1,8 @@
+# Optional runtime config (paths can also be set via CLI flags)
+corpus_dir: Documents/HamshahriData/HamshahriCorpus
+queries_dir: Documents/HamshahriData/Queris
+judgements_path: Documents/HamshahriData/RelativeAssesemnt/judgements.txt
+index_path: dict.pickle
+corpus_years: [2003, 2004, 2005, 2006, 2007]
+stop_words_top_n: 9
+top_k: 20
